@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -765,6 +765,7 @@ app.post('/api/spin-wheel-config', verifyToken, async (req, res) => {
         is_active
       ]
     );
+
     conn.release();
 
     res.json({
