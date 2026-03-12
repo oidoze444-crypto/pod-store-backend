@@ -504,7 +504,7 @@ app.delete('/api/banners/:id', verifyToken, async (req, res) => {
 });
 
 // ========== ORDERS ==========
-app.get('/api/orders', verifyToken, async (req, res) => {
+app.get('/api/orders', async (req, res) => {
   let conn;
 
   try {
