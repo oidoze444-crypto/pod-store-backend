@@ -102,24 +102,34 @@ app.get('/api/health', async (req, res) => {
 
 // ========== AUTH ==========
 app.post('/api/auth/login', async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  let conn;
 
-    const conn = await pool.getConnection();
+  try {
+    console.log('LOGIN 1 - iniciou');
+
+    const { email, password } = req.body;
+    console.log('LOGIN 2 - email recebido:', email);
+
+    conn = await pool.getConnection();
+    console.log('LOGIN 3 - conexão com banco OK');
+
     const [users] = await conn.query(
       'SELECT * FROM users WHERE email = ? AND is_active = true',
       [email]
     );
-    conn.release();
+    console.log('LOGIN 4 - resultado query:', users.length);
 
     if (users.length === 0) {
+      console.log('LOGIN 5 - usuário não encontrado');
       return res.status(401).json({ error: 'Usuário não encontrado' });
     }
 
     const user = users[0];
     const validPassword = await bcrypt.compare(password, user.password_hash);
+    console.log('LOGIN 6 - senha válida?', validPassword);
 
     if (!validPassword) {
+      console.log('LOGIN 7 - senha inválida');
       return res.status(401).json({ error: 'Senha inválida' });
     }
 
@@ -133,6 +143,8 @@ app.post('/api/auth/login', async (req, res) => {
       { expiresIn: '24h' }
     );
 
+    console.log('LOGIN 8 - token gerado');
+
     res.json({
       token,
       user: {
@@ -143,7 +155,13 @@ app.post('/api/auth/login', async (req, res) => {
       }
     });
   } catch (error) {
+    console.log('LOGIN ERRO:', error);
     res.status(500).json({ error: error.message });
+  } finally {
+    if (conn) {
+      conn.release();
+      console.log('LOGIN 9 - conexão liberada');
+    }
   }
 });
 
